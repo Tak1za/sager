@@ -61,6 +61,7 @@ func main() {
 		r1.GET("/login", spotifyHandler)
 		r1.GET("/profile", profileHandler)
 		r1.GET("/playlists", playlistHandler)
+		r1.GET("/tracks/playlists/:id", playlistTrackHandler)
 	}
 
 	router.Run()
@@ -85,7 +86,14 @@ func authorizeHandler(c *gin.Context) {
 }
 
 func spotifyHandler(c *gin.Context) {
-	a := sp.NewAuthenticator(appConfig.RedirectUri, sp.ScopeUserLibraryRead, sp.ScopeUserReadEmail)
+	a := sp.NewAuthenticator(
+		appConfig.RedirectUri,
+		sp.ScopeUserLibraryRead,
+		sp.ScopeUserReadEmail,
+		sp.ScopePlaylistReadPrivate,
+		sp.ScopePlaylistModifyPrivate,
+		sp.ScopePlaylistModifyPublic,
+		sp.ScopePlaylistReadCollaborative)
 	a.SetAuthInfo(appConfig.ClientId, appConfig.ClientSecret)
 	sClient.Authenticator = a
 	c.Redirect(http.StatusFound, a.AuthURLWithDialog("spotify-login"))
@@ -104,5 +112,17 @@ func playlistHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, "error")
 	}
 	data.Data = playlist.Playlists
+	c.JSON(http.StatusOK, data)
+}
+
+func playlistTrackHandler(c *gin.Context) {
+	var data data
+	playlistId := c.Param("id")
+	tracks, err := sClient.Client.GetPlaylistTracks(sp.ID(playlistId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "error")
+	}
+	data.Data = tracks
+
 	c.JSON(http.StatusOK, data)
 }
