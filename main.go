@@ -27,6 +27,7 @@ type data struct {
 type spotifyClient struct {
 	Authenticator sp.Authenticator
 	Client        sp.Client
+	User          *sp.PrivateUser
 }
 
 var (
@@ -53,25 +54,34 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router.GET("/ping", pingHandler)
-	router.GET("/spotify/login", spotifyHandler)
+	router.GET("/authorize", authorizeHandler)
+
+	r1 := router.Group("/spotify")
+	{
+		r1.GET("/login", spotifyHandler)
+		r1.GET("/profile", profileHandler)
+		r1.GET("/playlists", playlistHandler)
+	}
 
 	router.Run()
 }
 
-func pingHandler(c *gin.Context) {
-	var data data
-
+func authorizeHandler(c *gin.Context) {
 	token, err := sClient.Authenticator.Token("spotify-login", c.Request)
 	if err != nil {
 		log.Println(err)
+		c.JSON(http.StatusUnauthorized, "Unauthorized")
 	}
-	data.Data = token
 
 	client := sClient.Authenticator.NewClient(token)
+	currentUser, err := client.CurrentUser()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Access to Spotify account not granted")
+	}
 	sClient.Client = client
+	sClient.User = currentUser
 
-	c.JSON(http.StatusOK, data)
+	c.Redirect(http.StatusFound, "spotify/profile")
 }
 
 func spotifyHandler(c *gin.Context) {
@@ -79,4 +89,20 @@ func spotifyHandler(c *gin.Context) {
 	a.SetAuthInfo(appConfig.ClientId, appConfig.ClientSecret)
 	sClient.Authenticator = a
 	c.Redirect(http.StatusFound, a.AuthURLWithDialog("spotify-login"))
+}
+
+func profileHandler(c *gin.Context) {
+	var data data
+	data.Data = sClient.User
+	c.JSON(http.StatusOK, data)
+}
+
+func playlistHandler(c *gin.Context) {
+	var data data
+	playlist, err := sClient.Client.GetPlaylistsForUser(sClient.User.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "error")
+	}
+	data.Data = playlist.Playlists
+	c.JSON(http.StatusOK, data)
 }
