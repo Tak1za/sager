@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"time"
@@ -34,6 +34,10 @@ type spotifyClient struct {
 type createPlaylist struct {
 	Name   string `json:"name"`
 	Public bool   `json:"public"`
+}
+
+type createPlaylistResponse struct {
+	PlaylistId string `json:"id"`
 }
 
 type mergePlaylist struct {
@@ -74,7 +78,7 @@ func main() {
 		r1.GET("/login", spotifyHandler)
 		r1.GET("/profile", profileHandler)
 		r1.GET("/playlists", playlistHandler)
-		r1.GET("/tracks/playlists/:id", playlistTrackHandler)
+		r1.GET("/tracks/playlists/:id", playlistTracksHandler)
 		r1.POST("/playlists", createPlaylistHandler)
 		r1.POST("/playlists/merge", mergePlaylistHandler)
 	}
@@ -133,76 +137,125 @@ func playlistHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-func playlistTrackHandler(c *gin.Context) {
+func playlistTracksHandler(c *gin.Context) {
 	var data data
 	playlistId := c.Param("id")
-	tracks, err := sClient.Client.GetPlaylistTracks(sp.ID(playlistId))
+
+	playlistTracks, err := getPlaylistTracks(playlistId)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	data.Data = tracks
 
+	data.Data = playlistTracks
 	c.JSON(http.StatusOK, data)
 }
 
 func createPlaylistHandler(c *gin.Context) {
+	var resp createPlaylistResponse
 	var req createPlaylist
 	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	_, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
+	createdPlaylist, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, "Created")
+	resp.PlaylistId = createdPlaylist.ID.String()
+	c.JSON(http.StatusCreated, resp)
+}
+
+type result struct {
+	trackId sp.ID
 }
 
 func mergePlaylistHandler(c *gin.Context) {
+	var resp createPlaylistResponse
 	var req mergePlaylist
 	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	newPlaylist, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
+	mergedPlaylist, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	data1, err := sClient.Client.GetPlaylistTracks(sp.ID(req.P1))
+	data1, err := getPlaylistTracks(req.P1)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
-	}
-	fmt.Println("got p1 tracks")
-	for i, j := range data1.Tracks {
-		_, err := sClient.Client.AddTracksToPlaylist(newPlaylist.ID, j.Track.ID)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		fmt.Println("added track: ", i)
 	}
 
-	data2, err := sClient.Client.GetPlaylistTracks(sp.ID(req.P2))
+	data2, err := getPlaylistTracks(req.P2)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	fmt.Println("got p2 tracks")
-	for i, j := range data2.Tracks {
-		_, err := sClient.Client.AddTracksToPlaylist(newPlaylist.ID, j.Track.ID)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		fmt.Println("added track: ", data1.Total+i)
+
+	var allTracks []sp.ID
+	for _, j := range data1 {
+		allTracks = append(allTracks, j.Track.ID)
 	}
-	c.JSON(http.StatusCreated, "Completed")
+
+	for _, j := range data2 {
+		allTracks = append(allTracks, j.Track.ID)
+	}
+
+	for i := 0; i < int(math.Ceil(float64(len(allTracks))/100)); i++ {
+		start := i * 100
+		end := len(allTracks) % 100
+		if i < len(allTracks)/100 {
+			_, err = sClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+100]...)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		} else {
+			_, err = sClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+end]...)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+	}
+
+	resp.PlaylistId = mergedPlaylist.ID.String()
+	c.JSON(http.StatusCreated, resp)
+}
+
+func getMin(a, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
+}
+
+func getPlaylistTracks(playlistId string) ([]sp.PlaylistTrack, error) {
+	var ret []sp.PlaylistTrack
+	tracks, err := sClient.Client.GetPlaylistTracks(sp.ID(playlistId))
+	if err != nil {
+		return nil, err
+	}
+	ret = append(ret, tracks.Tracks...)
+	if tracks.Next != "" {
+		for i := 1; i < int(math.Ceil(float64(tracks.Total)/100)); i++ {
+			offset := i * 100
+			limit := 100
+			moreTracks, err := sClient.Client.GetPlaylistTracksOpt(sp.ID(playlistId), &sp.Options{Offset: &offset, Limit: &limit}, "")
+			if err != nil {
+				return nil, err
+			}
+
+			ret = append(ret, moreTracks.Tracks...)
+		}
+	}
+
+	return ret, nil
 }
