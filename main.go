@@ -102,8 +102,6 @@ func authorizeHandler(c *gin.Context) {
 	}
 	sClient.Client = client
 	sClient.User = currentUser
-
-	c.Redirect(http.StatusFound, "spotify/profile")
 }
 
 func spotifyHandler(c *gin.Context) {
