@@ -2,15 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
 
 	sp "github.com/zmb3/spotify"
 )
@@ -22,7 +26,8 @@ type config struct {
 }
 
 type data struct {
-	Data interface{} `json:"data"`
+	Data  interface{} `json:"data"`
+	Error string      `json:"error"`
 }
 
 type spotifyClient struct {
@@ -87,21 +92,39 @@ func main() {
 }
 
 func authorizeHandler(c *gin.Context) {
+	var data data
 	token, err := sClient.Authenticator.Token("spotify-login", c.Request)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithError(http.StatusUnauthorized, err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
 	client := sClient.Authenticator.NewClient(token)
 	currentUser, err := client.CurrentUser()
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
+
 	sClient.Client = client
 	sClient.User = currentUser
+	urlQuery := c.Request.URL.Query()
+	u, err := url.Parse("http://localhost:3000/authorize")
+	q := u.Query()
+	q.Set("access_token", urlQuery.Get("code"))
+	q.Set("state", urlQuery.Get("state"))
+	u.RawQuery = q.Encode()
+	c.Request.Header.Add("access_token", token.AccessToken)
+
+	fmt.Println("Redirect URL: ", u.String())
+
+	c.Redirect(http.StatusTemporaryRedirect, u.String())
 }
 
 func spotifyHandler(c *gin.Context) {
@@ -120,7 +143,18 @@ func spotifyHandler(c *gin.Context) {
 
 func profileHandler(c *gin.Context) {
 	var data data
-	data.Data = sClient.User
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+	content, err := client.CurrentUser()
+	if err != nil {
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
+		return
+	}
+	data.Data = content
 	c.JSON(http.StatusOK, data)
 }
 
@@ -128,7 +162,10 @@ func playlistHandler(c *gin.Context) {
 	var data data
 	playlist, err := sClient.Client.GetPlaylistsForUser(sClient.User.ID)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 	data.Data = playlist.Playlists
@@ -141,25 +178,38 @@ func playlistTracksHandler(c *gin.Context) {
 
 	playlistTracks, err := getPlaylistTracks(playlistId)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
+	if playlistTracks == nil {
+		playlistTracks = make([]sp.PlaylistTrack, 0)
+	}
 	data.Data = playlistTracks
 	c.JSON(http.StatusOK, data)
 }
 
 func createPlaylistHandler(c *gin.Context) {
+	var data data
 	var resp createPlaylistResponse
 	var req createPlaylist
 	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
 	createdPlaylist, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
@@ -174,26 +224,39 @@ type result struct {
 func mergePlaylistHandler(c *gin.Context) {
 	var resp createPlaylistResponse
 	var req mergePlaylist
+	var data data
 	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
 	mergedPlaylist, err := sClient.Client.CreatePlaylistForUser(sClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
 	data1, err := getPlaylistTracks(req.P1)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
 	data2, err := getPlaylistTracks(req.P2)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
 		return
 	}
 
@@ -212,13 +275,19 @@ func mergePlaylistHandler(c *gin.Context) {
 		if i < len(allTracks)/100 {
 			_, err = sClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+100]...)
 			if err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
+				log.Println(err)
+				internalErr := err.(sp.Error)
+				data.Error = internalErr.Message
+				c.JSON(internalErr.Status, data)
 				return
 			}
 		} else {
 			_, err = sClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+end]...)
 			if err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
+				log.Println(err)
+				internalErr := err.(sp.Error)
+				data.Error = internalErr.Message
+				c.JSON(internalErr.Status, data)
 				return
 			}
 		}
