@@ -4,6 +4,7 @@ import { DesktopOutlined, PieChartOutlined } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 import "antd/dist/antd.css";
 import "./Nav.scss";
+import Login from "../Login/Login";
 const { Content, Footer, Sider } = Layout;
 
 function Nav() {
@@ -11,11 +12,34 @@ function Nav() {
 
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
-    console.log(loggedIn);
-    if(localStorage.getItem("accessToken") && localStorage.getItem("refreshToken")){
+    if (
+      localStorage.getItem("accessToken") &&
+      localStorage.getItem("refreshToken")
+    ) {
       setLoggedIn(true);
     }
-  });
+  }, []);
+
+  const [username, setUsername] = useState("");
+  useEffect(() => {
+    if (
+      loggedIn &&
+      localStorage.getItem("accessToken") &&
+      localStorage.getItem("refreshToken")
+    ) {
+      fetch("http://localhost:8080/spotify/profile", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("accessToken"),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setUsername(data.data.display_name);
+        })
+        .catch(err => console.error(err))
+    }
+  }, [loggedIn]);
 
   return (
     <Layout style={{ minHeight: "100vh", color: "#fff" }}>
@@ -36,18 +60,9 @@ function Nav() {
       </Sider>
       <Layout className="site-layout" style={{ backgroundColor: "#001529" }}>
         <Content style={{ margin: "10px 10px", overflow: "initial" }}>
-          <div
-            className="site-layout-background"
-            style={{ padding: 24, textAlign: "center" }}
-          >
-            <a
-              href="http://localhost:8080/spotify/login"
-              className={loggedIn ? "external-icon-in" : "external-icon"}
-            >
-              <i
-                className={loggedIn ? "fab fa-spotify in" : "fab fa-spotify"}
-              />
-            </a>
+          <Login loggedIn={loggedIn} handleLoginStatus={setLoggedIn} />
+          <div>
+            <p style={{ color: "white" }}>{username}</p>
           </div>
         </Content>
         <Footer

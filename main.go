@@ -124,7 +124,7 @@ func authorizeHandler(c *gin.Context) {
 
 	fmt.Println("Redirect URL: ", u.String())
 
-	c.Redirect(http.StatusTemporaryRedirect, u.String())
+	c.Redirect(http.StatusFound, u.String())
 }
 
 func spotifyHandler(c *gin.Context) {
