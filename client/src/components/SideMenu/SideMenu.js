@@ -56,7 +56,7 @@ function SideMenuPusher(props) {
         visible={props.visible}
       />
       <Sidebar.Pusher dimmed={dimmed && props.visible} className="pusherDiv">
-        <Segment basic attached="bottom" style={{ padding: "0", border: "none" }}>
+        <Segment basic attached="bottom" style={{ padding: "0", border: "none"}}>
           <Main />
         </Segment>
       </Sidebar.Pusher>

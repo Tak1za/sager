@@ -14,8 +14,8 @@ function Login(props) {
         grant_type: "authorization_code",
         code: queryObject.code,
         redirect_uri: "http://localhost:3000/authorize",
-        client_id: "client_id",
-        client_secret: "client_secret",
+        client_id: "c6b75823a81a41a3b5ddf2531d7498e0",
+        client_secret: "76c1236ab5554bb69b0d56c7ab1c8b51",
       };
       fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
@@ -31,27 +31,27 @@ function Login(props) {
       })
         .then((res) => res.json())
         .then((data) => {
-          localStorage.setItem("accessToken", data.access_token);
-          localStorage.setItem("refreshToken", data.refresh_token);
+          if (
+            data.access_token !== undefined &&
+            data.refresh_token !== undefined
+          ) {
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("refreshToken", data.refresh_token);
+            props.handleLoginStatus(true);
+          }
         })
-        .then(() => props.handleLoginStatus(true))
         .then(props.history.push("/"))
         .catch((err) => console.error(err));
     }
   }, [props]);
 
   return (
-    <div
-      className="site-layout-background"
-      style={{ padding: 24, textAlign: "center" }}
+    <a
+      href="http://localhost:8080/spotify/login"
+      className={loggedIn ? "external-icon-in" : "external-icon"}
     >
-      <a
-        href="http://localhost:8080/spotify/login"
-        className={loggedIn ? "external-icon-in" : "external-icon"}
-      >
-        <i className={loggedIn ? "fab fa-spotify in" : "fab fa-spotify"} />
-      </a>
-    </div>
+      <i className={loggedIn ? "fab fa-spotify in" : "fab fa-spotify"} />
+    </a>
   );
 }
 

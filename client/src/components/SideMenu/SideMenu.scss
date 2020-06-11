@@ -1,5 +1,5 @@
 div.sidemenu {
-  min-height: 100vh;
+  min-height: calc(100vh - 50px) !important;
   overflow: hidden;
 
   div.ui.sidebar {
@@ -8,6 +8,8 @@ div.sidemenu {
     border-style: solid;
     border-radius: 20px;
     border-width: 4px;
+    left: 10px;
+    border-radius: 20px !important;
   }
 
   div.pusher.pusherDiv {
@@ -19,6 +21,6 @@ div.sidemenu {
   }
 
   .segment {
-    min-height: 100vh;
+    min-height: calc(100vh - 50px) !important;
   }
 }
