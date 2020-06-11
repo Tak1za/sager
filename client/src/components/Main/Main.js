@@ -1,11 +1,20 @@
 import React from "react";
-import { Header } from "semantic-ui-react";
 import "./Main.scss";
 
-function Main() {
+function Main(props) {
   return (
-    <div className="content">
-      <Header as="h3" className="heading">Application Content</Header>
+    <div className="main-container">
+      {props.children}
+      <div className="main-content">
+        <p>fbsdjkfndskjfnskd</p>
+        <p>dsakjdnjksadjkasdsa</p>
+        <p>fbsdjkfndskjfnskd</p>
+        <p>dsakjdnjksadjkasdsa</p>
+        <p>fbsdjkfndskjfnskd</p>
+        <p>dsakjdnjksadjkasdsa</p>
+        <p>fbsdjkfndskjfnskd</p>
+        <p>dsakjdnjksadjkasdsa</p>
+      </div>
     </div>
   );
 }

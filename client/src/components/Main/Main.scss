@@ -1,9 +1,18 @@
-.content{
-  min-height: 100vh;
-  background-color: #222831;
-  padding: 10px;
+.main-container{
+  background-color: #eaeaea;
+  border-style: solid;
+  border-color: white;
+  border-radius: 20px;
+  margin: 20px 40px;
+  padding: 10px 30px;
+  height: 95vh;
+  overflow-y: scroll;
 
-  .heading{
-    color: #00adb5
+  &::-webkit-scrollbar{
+    display: none;
+  }
+
+  .main-content{
+    margin-top: 40px;
   }
 }
