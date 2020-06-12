@@ -34,7 +34,9 @@ function Navbar(props) {
           <Nav.Link
             as={Link}
             to="/"
-            className={props.location.pathname === "/" ? "active" : null}
+            className={
+              "logo" + (props.location.pathname === "/" ? " active" : "")
+            }
           >
             Sager
           </Nav.Link>

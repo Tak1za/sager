@@ -7,6 +7,11 @@ a:active{
   color: black;
 }
 
-a.nav-link.active{
+a.nav-link.logo.active{
   color: black;
+}
+
+a.logo{
+  line-height: 1em;
+  font-size: 1.2em;
 }
