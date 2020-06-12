@@ -1,0 +1,12 @@
+a{
+  text-decoration: none;
+  color: grey;
+}
+
+a:active{
+  color: black;
+}
+
+a.nav-link.active{
+  color: black;
+}

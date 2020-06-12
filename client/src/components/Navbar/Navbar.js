@@ -1,54 +1,67 @@
 import React from "react";
 import "./Navbar.scss";
+import Nav from "react-bootstrap/Nav";
+import { withRouter, Link } from "react-router-dom";
 
-function Navbar() {
+function Navbar(props) {
   return (
-    <nav class="navbar navbar-light navbar-expand-md justify-content-center justify-content-start">
-      <a class="navbar-brand d-md-none d-inline" href="">
-        Brand
-      </a>
-      <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#collapsingNavbar2"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      <div
-        class="navbar-collapse collapse justify-content-between align-items-center w-100"
-        id="collapsingNavbar2"
+    <>
+      <Nav
+        className="justify-content-center"
+        activeKey={props.location.pathname}
       >
-        <ul class="navbar-nav mx-auto text-md-center text-left">
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              Profile
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              Playlists
-            </a>
-          </li>
-          <li class="nav-item my-auto">
-            <a class="nav-link navbar-brand mx-0 d-none d-md-inline" href="">
-              Sager
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              Browse
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              Podcasts
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
+        <Nav.Item>
+          <Nav.Link
+            as={Link}
+            to="/playlists"
+            className={
+              props.location.pathname === "/playlists" ? "active" : null
+            }
+          >
+            Playlists
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            as={Link}
+            to="/explore"
+            className={props.location.pathname === "/explore" ? "active" : null}
+          >
+            Explore
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            as={Link}
+            to="/"
+            className={props.location.pathname === "/" ? "active" : null}
+          >
+            Sager
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            as={Link}
+            to="/podcasts"
+            className={
+              props.location.pathname === "/podcasts" ? "active" : null
+            }
+          >
+            Podcasts
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            as={Link}
+            to="/profile"
+            className={props.location.pathname === "/profile" ? "active" : null}
+          >
+            Profile
+          </Nav.Link>
+        </Nav.Item>
+      </Nav>
+    </>
   );
 }
 
-export default Navbar;
+export default withRouter(Navbar);
