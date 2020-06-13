@@ -5,7 +5,7 @@ import { withRouter, Link } from "react-router-dom";
 
 function Navbar(props) {
   return (
-    <>
+    <div className="nav-container">
       <Nav
         className="justify-content-center"
         activeKey={props.location.pathname}
@@ -62,7 +62,7 @@ function Navbar(props) {
           </Nav.Link>
         </Nav.Item>
       </Nav>
-    </>
+    </div>
   );
 }
 

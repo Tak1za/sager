@@ -1,0 +1,14 @@
+.big {
+  height: 250px;
+  background-color: red;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  flex: 0.3;
+}
+
+@media (max-width: 800px) {
+  .big {
+    display: none;
+  }
+}

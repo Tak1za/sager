@@ -1,0 +1,23 @@
+.list{
+  background-color: green;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  flex: 0.6;
+  align-self: flex-end;
+  margin-left: auto;
+  overflow-y: scroll;
+  position: sticky;
+  position: -webkit-sticky;
+  bottom: 2rem;
+
+  &::-webkit-scrollbar{
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .list {
+    flex: 1;
+  }
+}

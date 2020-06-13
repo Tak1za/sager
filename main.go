@@ -160,7 +160,10 @@ func profileHandler(c *gin.Context) {
 
 func playlistHandler(c *gin.Context) {
 	var data data
-	playlist, err := sClient.Client.GetPlaylistsForUser(sClient.User.ID)
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+	content, err := client.CurrentUsersPlaylists()
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -168,7 +171,7 @@ func playlistHandler(c *gin.Context) {
 		c.JSON(internalErr.Status, data)
 		return
 	}
-	data.Data = playlist.Playlists
+	data.Data = content.Playlists
 	c.JSON(http.StatusOK, data)
 }
 

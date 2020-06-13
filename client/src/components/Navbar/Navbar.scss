@@ -1,17 +1,23 @@
-a{
-  text-decoration: none;
-  color: grey;
-}
+.nav-container {
+  top: 1em;
+  position: sticky;
+  position: -webkit-sticky;
 
-a:active{
-  color: black;
-}
+  a {
+    text-decoration: none;
+    color: grey;
+  }
 
-a.nav-link.logo.active{
-  color: black;
-}
+  a:active {
+    color: black;
+  }
 
-a.logo{
-  line-height: 1em;
-  font-size: 1.2em;
+  a.nav-link.active {
+    color: black;
+  }
+
+  a.logo {
+    line-height: 1em;
+    font-size: 1.2em;
+  }
 }
