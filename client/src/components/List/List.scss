@@ -14,6 +14,10 @@
   &::-webkit-scrollbar{
     display: none;
   }
+
+  .list-item{
+    padding: 15px;
+  }
 }
 
 @media (max-width: 800px) {
