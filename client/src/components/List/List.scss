@@ -13,16 +13,6 @@
   &::-webkit-scrollbar{
     display: none;
   }
-
-  .list-item{
-    padding: 5px;
-
-    div.media-body{
-      p{
-        font-size: 0.8em;
-      }
-    }
-  }
 }
 
 @media (max-width: 800px) {
