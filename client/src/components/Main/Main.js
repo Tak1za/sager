@@ -6,6 +6,7 @@ import Profile from "../Profile/Profile";
 import Playlists from "../Playlists/Playlists";
 import Podcasts from "../Podcasts/Podcasts";
 import Explore from "../Explore/Explore";
+import Login from "../Login/Login";
 
 function Main(props) {
   return (
@@ -27,6 +28,9 @@ function Main(props) {
           </Route>
           <Route exact path="/explore">
             <Explore />
+          </Route>
+          <Route exact path="/authorize">
+            <Login />
           </Route>
         </Switch>
       </div>

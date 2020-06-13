@@ -1,8 +1,15 @@
-.list-item{
-  padding: 5px;
+.list-item {
+  border-radius: 15px;
+  padding: 7px 10px;
 
-  div.media-body{
-    p{
+  &:hover {
+    -webkit-box-shadow: 0px 5px 15px -5px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 5px 15px -5px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 5px 15px -5px rgba(0, 0, 0, 0.75);
+  }
+
+  div.media-body {
+    p {
       font-size: 0.8em;
     }
   }

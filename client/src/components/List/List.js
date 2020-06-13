@@ -1,16 +1,16 @@
 import React from "react";
 import "./List.scss";
 import { Container } from "react-bootstrap";
-import ListItem from '../ListItem/ListItem';
+import ListItem from "../ListItem/ListItem";
 
-function List() {
-  let data = Array(20).fill("lorem ipsum dolor");
-  console.log(data);
+function List(props) {
   return (
     <div className="list">
       <Container fluid>
-        {data.map((item, index) => {
-          return <ListItem key={index} item={item} />;
+        {props.data.map((item, index) => {
+          return (
+            <ListItem key={index} item={item} selectItem={props.selectItem} />
+          );
         })}
       </Container>
     </div>

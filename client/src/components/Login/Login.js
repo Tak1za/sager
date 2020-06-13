@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import queryString from "query-string";
 import "./Login.scss";
 
 function Login(props) {
-  const loggedIn = props.loggedIn;
+  // const loggedIn = props.loggedIn;
 
   useEffect(() => {
     let queryObject = queryString.parse(props.location.search);
@@ -37,21 +37,22 @@ function Login(props) {
           ) {
             localStorage.setItem("accessToken", data.access_token);
             localStorage.setItem("refreshToken", data.refresh_token);
-            props.handleLoginStatus(true);
+            // props.handleLoginStatus(true);
           }
         })
-        .then(props.history.push("/"))
+        .then(props.history.push("/playlists"))
         .catch((err) => console.error(err));
     }
   }, [props]);
 
   return (
-    <a
-      href="http://localhost:8080/spotify/login"
-      className={loggedIn ? "external-icon-in" : "external-icon"}
-    >
-      <i className={loggedIn ? "fab fa-spotify in" : "fab fa-spotify"} />
-    </a>
+    // <a
+    //   href="http://localhost:8080/spotify/login"
+    //   className={loggedIn ? "external-icon-in" : "external-icon"}
+    // >
+    //   <i className={loggedIn ? "fab fa-spotify in" : "fab fa-spotify"} />
+    // </a>
+    null
   );
 }
 

@@ -1,10 +1,21 @@
 .big {
-  height: 250px;
-  background-color: red;
+  padding: 10px 0px;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
-  align-self: flex-start;
   flex: 0.3;
+  text-align: center;
+
+  .card {
+    border: none;
+
+    img {
+      -webkit-box-shadow: 0px 5px 15px -2px rgba(0, 0, 0, 0.75);
+      -moz-box-shadow: 0px 5px 15px -2px rgba(0, 0, 0, 0.75);
+      box-shadow: 0px 5px 15px -2px rgba(0, 0, 0, 0.75);
+    }
+  }
 }
 
 @media (max-width: 800px) {
