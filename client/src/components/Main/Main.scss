@@ -1,4 +1,4 @@
-.main-container{
+.main-container {
   background-color: #fff;
   border-style: solid;
   border-color: white;
@@ -8,12 +8,33 @@
   height: 95vh;
   overflow-y: hidden;
 
-  &::-webkit-scrollbar{
+  &::-webkit-scrollbar {
     display: none;
   }
 
-  .main-content{
-    margin-top: 60px;
+  .breadcrumb {
+    margin-top: 10px;
+    background-color: white;
+    font-size: 0.8em;
+
+    > li + li {
+      &:before {
+        color: rgba(204, 204, 204, 1);
+        content: "\203A\00a0";
+      }
+    }
+
+    a {
+      color: black;
+
+      &:hover{
+        text-decoration: none;
+      }
+    }
+  }
+
+  .main-content {
+    margin-top: 40px;
     overflow-y: hidden;
   }
 }
