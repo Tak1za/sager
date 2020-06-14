@@ -38,9 +38,9 @@ function Login(props) {
             localStorage.setItem("accessToken", data.access_token);
             localStorage.setItem("refreshToken", data.refresh_token);
             // props.handleLoginStatus(true);
+            props.history.push("/playlists");
           }
         })
-        .then(props.history.push("/playlists"))
         .catch((err) => console.error(err));
     }
   }, [props]);

@@ -6,20 +6,24 @@ import "./Playlists.scss";
 function Playlists() {
   const [data, setData] = useState([]);
   useEffect(() => {
-    fetch("http://localhost:8080/spotify/playlists", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("accessToken"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setData(result.data);
-        setSelectedItem(result.data[0]);
-      });
+    if (localStorage.getItem("accessToken")) {
+      fetch("http://localhost:8080/spotify/playlists", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("accessToken"),
+        },
+      })
+        .catch((err) => console.error(err))
+        .then((res) => res.json())
+        .then((result) => {
+          setData(result.data);
+          setSelectedItem(result.data ? result.data[0] : null);
+        });
+    } else {
+      window.location.assign("http://localhost:8080/spotify/login");
+    }
   }, []);
 
   const [selectedItem, setSelectedItem] = useState(null);
-
   return (
     <div className="content-container">
       <Big item={selectedItem} />

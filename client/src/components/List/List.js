@@ -7,11 +7,17 @@ function List(props) {
   return (
     <div className="list">
       <Container fluid>
-        {props.data.map((item, index) => {
-          return (
-            <ListItem key={index} item={item} selectItem={props.selectItem} />
-          );
-        })}
+        {props.data && props.data.length !== 0
+          ? props.data.map((item, index) => {
+              return (
+                <ListItem
+                  key={index}
+                  item={item}
+                  selectItem={props.selectItem}
+                />
+              );
+            })
+          : null}
       </Container>
     </div>
   );
