@@ -14,8 +14,8 @@ function Login(props) {
         grant_type: "authorization_code",
         code: queryObject.code,
         redirect_uri: "http://localhost:3000/authorize",
-        client_id: "c6b75823a81a41a3b5ddf2531d7498e0",
-        client_secret: "76c1236ab5554bb69b0d56c7ab1c8b51",
+        client_id: "clientId",
+        client_secret: "clientSecret",
       };
       fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
