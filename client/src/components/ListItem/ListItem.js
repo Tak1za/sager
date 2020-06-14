@@ -4,13 +4,18 @@ import "./ListItem.scss";
 
 function ListItem(props) {
   const { item, selectItem } = props;
+  let imagesExist = item.images && item.images.length !== 0;
   return (
     <Media className="list-item" onClick={() => selectItem(item)}>
       <img
         width={50}
         height={50}
         className="mr-3"
-        src="https://46.media.tumblr.com/276eeec6ab6ee2dce7373580e5ffa35c/tumblr_n2fx9yLS411tvfpg9o1_500.gif"
+        src={
+          imagesExist
+            ? item.images[0].url
+            : "https://www.wyzowl.com/wp-content/uploads/2018/08/The-20-Best-Royalty-Free-Music-Sites-in-2018.png"
+        }
         alt="Generic placeholder"
       />
       <Media.Body>
