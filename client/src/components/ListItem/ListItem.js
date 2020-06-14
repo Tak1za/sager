@@ -6,7 +6,7 @@ function ListItem(props) {
   const { item, selectItem } = props;
   let imagesExist = item.images && item.images.length !== 0;
   return (
-    <Media className="list-item" onClick={() => selectItem(item)}>
+    <Media className="list-item" onMouseOver={() => selectItem(item)}>
       <img
         width={50}
         height={50}
