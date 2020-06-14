@@ -12,12 +12,18 @@ function Playlists() {
           Authorization: "Bearer " + localStorage.getItem("accessToken"),
         },
       })
-        .catch((err) => console.error(err))
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.location.assign("http://localhost:8080/spotify/login");
+          } else {
+            return res.json();
+          }
+        })
         .then((result) => {
           setData(result.data);
           setSelectedItem(result.data ? result.data[0] : null);
-        });
+        })
+        .catch((err) => console.error(err));
     } else {
       window.location.assign("http://localhost:8080/spotify/login");
     }
