@@ -20,9 +20,15 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: grey;
+    background-color: lightgrey;
     border-radius: 20px;
     border: 1px solid white;
+
+    &:hover {
+      background-color: grey;
+      border-radius: 20px;
+      border: 1px solid white;
+    }
   }
 }
 

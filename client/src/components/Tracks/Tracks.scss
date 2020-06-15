@@ -10,17 +10,23 @@
     width: 10px;
   }
 
-  &::-webkit-scrollbar-track{
+  &::-webkit-scrollbar-track {
     background: white;
   }
 
-  &::-webkit-scrollbar-thumb{
-    background-color: grey;
+  &::-webkit-scrollbar-thumb {
+    background-color: lightgrey;
     border-radius: 20px;
     border: 1px solid white;
+
+    &:hover {
+      background-color: grey;
+      border-radius: 20px;
+      border: 1px solid white;
+    }
   }
 
-  .loader{
+  .loader {
     position: absolute;
     margin: auto;
     top: 0;
