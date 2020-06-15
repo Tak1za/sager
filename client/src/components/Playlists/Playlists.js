@@ -29,6 +29,9 @@ function Playlists() {
     }
   }, []);
 
+  const [selectedTrack, setSelectedTrack] = useState(null);
+  const [playlistTracks, setPlaylistTracks] = useState([]);
+  const [isPlaylistSelected, setIsPlaylistSelected] = useState(false);
   const [playlist, setPlaylist] = useState(null);
   useEffect(() => {
     if (localStorage.getItem("accessToken") && playlist !== null) {
@@ -45,21 +48,28 @@ function Playlists() {
           }
         })
         .then((result) => {
-          console.log(result);
+          setPlaylistTracks(result.data);
+          setIsPlaylistSelected(true);
         })
         .catch((err) => console.error(err));
     }
   }, [playlist]);
 
   const [selectedItem, setSelectedItem] = useState(null);
-
   return (
     <div className="content-container">
-      <Big item={selectedItem} />
+      {isPlaylistSelected ? (
+        <Big item={selectedTrack} isPlaylistSelected={isPlaylistSelected} />
+      ) : (
+        <Big item={selectedItem} isPlaylistSelected={isPlaylistSelected} />
+      )}
       <List
         data={data}
         selectItem={setSelectedItem}
         selectPlaylist={setPlaylist}
+        trackData={playlistTracks}
+        isPlaylistSelected={isPlaylistSelected}
+        selectTrack={setSelectedTrack}
       />
     </div>
   );

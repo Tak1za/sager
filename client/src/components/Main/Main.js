@@ -7,13 +7,11 @@ import Playlists from "../Playlists/Playlists";
 import Podcasts from "../Podcasts/Podcasts";
 import Explore from "../Explore/Explore";
 import Login from "../Login/Login";
-import Crumb from "../Crumb/Crumb";
 
 function Main(props) {
   return (
     <div className="main-container">
       {props.children}
-      <Crumb />
       <div className="main-content">
         <Switch>
           <Route exact path="/">
