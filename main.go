@@ -179,7 +179,10 @@ func playlistTracksHandler(c *gin.Context) {
 	var data data
 	playlistId := c.Param("id")
 
-	playlistTracks, err := getPlaylistTracks(playlistId)
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+
+	playlistTracks, err := getPlaylistTracks(playlistId, token)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -228,6 +231,10 @@ func mergePlaylistHandler(c *gin.Context) {
 	var resp createPlaylistResponse
 	var req mergePlaylist
 	var data data
+
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+
 	if err := c.BindJSON(&req); err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -245,7 +252,7 @@ func mergePlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	data1, err := getPlaylistTracks(req.P1)
+	data1, err := getPlaylistTracks(req.P1, token)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -254,7 +261,7 @@ func mergePlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	data2, err := getPlaylistTracks(req.P2)
+	data2, err := getPlaylistTracks(req.P2, token)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -307,9 +314,12 @@ func getMin(a, b int) int {
 	return b
 }
 
-func getPlaylistTracks(playlistId string) ([]sp.PlaylistTrack, error) {
+func getPlaylistTracks(playlistId string, token []string) ([]sp.PlaylistTrack, error) {
 	var ret []sp.PlaylistTrack
-	tracks, err := sClient.Client.GetPlaylistTracks(sp.ID(playlistId))
+
+	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+
+	tracks, err := client.GetPlaylistTracks(sp.ID(playlistId))
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +328,7 @@ func getPlaylistTracks(playlistId string) ([]sp.PlaylistTrack, error) {
 		for i := 1; i < int(math.Ceil(float64(tracks.Total)/100)); i++ {
 			offset := i * 100
 			limit := 100
-			moreTracks, err := sClient.Client.GetPlaylistTracksOpt(sp.ID(playlistId), &sp.Options{Offset: &offset, Limit: &limit}, "")
+			moreTracks, err := client.GetPlaylistTracksOpt(sp.ID(playlistId), &sp.Options{Offset: &offset, Limit: &limit}, "")
 			if err != nil {
 				return nil, err
 			}
