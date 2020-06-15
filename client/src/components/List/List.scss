@@ -1,4 +1,4 @@
-.list{
+.list {
   height: inherit;
   display: flex;
   flex-direction: column;
@@ -11,8 +11,18 @@
   bottom: 2rem;
   padding: 10px 0px 10px 0px;
 
-  &::-webkit-scrollbar{
-    display: none;
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: white;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: grey;
+    border-radius: 20px;
+    border: 1px solid white;
   }
 }
 
