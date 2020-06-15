@@ -4,9 +4,9 @@ import { Switch, Route } from "react-router-dom";
 import Root from "../Root/Root";
 import Profile from "../Profile/Profile";
 import Playlists from "../Playlists/Playlists";
-import Podcasts from "../Podcasts/Podcasts";
 import Explore from "../Explore/Explore";
 import Login from "../Login/Login";
+import Tracks from "../Tracks/Tracks";
 
 function Main(props) {
   return (
@@ -23,8 +23,8 @@ function Main(props) {
           <Route exact path="/playlists">
             <Playlists />
           </Route>
-          <Route exact path="/podcasts">
-            <Podcasts />
+          <Route path="/playlists/:playlistId">
+            <Tracks />
           </Route>
           <Route exact path="/explore">
             <Explore />

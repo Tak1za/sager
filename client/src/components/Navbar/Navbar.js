@@ -44,12 +44,12 @@ function Navbar(props) {
         <Nav.Item>
           <Nav.Link
             as={Link}
-            to="/podcasts"
+            to="/tracks"
             className={
-              props.location.pathname === "/podcasts" ? "active" : null
+              props.location.pathname === "/tracks" ? "active" : null
             }
           >
-            Podcasts
+            Tracks
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>

@@ -1,8 +1,10 @@
 import React from "react";
 import Media from "react-bootstrap/Media";
+import Image from 'react-bootstrap/Image';
+import "./TrackItem.scss";
 
 function TrackItem(props) {
-  const { item, selectTrack } = props;
+  const { item } = props;
   let imagesExist =
     item.track.album.images && item.track.album.images.length !== 0;
 
@@ -10,11 +12,12 @@ function TrackItem(props) {
   let by = artistArray ? artistArray.join(", ") : null;
 
   return (
-    <Media className="list-item" onMouseOver={() => selectTrack(item)}>
-      <img
+    <Media className="track-item">
+      <Image
         width={50}
         height={50}
         className="mr-3"
+        roundedCircle
         src={
           imagesExist
             ? item.track.album.images[0].url
@@ -23,7 +26,7 @@ function TrackItem(props) {
         alt="Generic placeholder"
       />
       <Media.Body>
-        <h6>{item.track.name}</h6>
+        <span>{item.track.name}</span>
         <p>{by}</p>
       </Media.Body>
       <Media.Body className="d-flex flex-row-reverse">

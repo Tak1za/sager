@@ -1,15 +1,16 @@
 import React from "react";
 import { Media } from "react-bootstrap";
 import "./ListItem.scss";
+import {withRouter} from 'react-router-dom';
 
 function ListItem(props) {
-  const { item, selectItem, selectPlaylist } = props;
+  const { item, selectItem, match } = props;
   let imagesExist = item.images && item.images.length !== 0;
   return (
     <Media
       className="list-item"
       onMouseOver={() => selectItem(item)}
-      onClick={() => selectPlaylist(item)}
+      onClick={() => props.history.push(`${match.path}/${item.id}`)}
     >
       <img
         width={50}
@@ -33,4 +34,4 @@ function ListItem(props) {
   );
 }
 
-export default ListItem;
+export default withRouter(ListItem);
