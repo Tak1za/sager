@@ -34,7 +34,13 @@
   }
 
   .main-content {
-    margin-top: 40px;
+    height: 500px;
     overflow-y: hidden;
+  }
+}
+
+@media (max-width: 570px) {
+  .main-container .main-content {
+    height: 450px;
   }
 }

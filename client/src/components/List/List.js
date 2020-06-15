@@ -11,12 +11,8 @@ function List(props) {
         {props.data && props.data.length !== 0
           ? props.data.map((item, index) => {
               return (
-                <Fade big>
-                  <ListItem
-                    key={index}
-                    item={item}
-                    selectItem={props.selectItem}
-                  />
+                <Fade big key={index}>
+                  <ListItem item={item} selectItem={props.selectItem} />
                 </Fade>
               );
             })
