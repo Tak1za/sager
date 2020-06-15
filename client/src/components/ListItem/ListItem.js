@@ -3,10 +3,14 @@ import { Media } from "react-bootstrap";
 import "./ListItem.scss";
 
 function ListItem(props) {
-  const { item, selectItem } = props;
+  const { item, selectItem, selectPlaylist } = props;
   let imagesExist = item.images && item.images.length !== 0;
   return (
-    <Media className="list-item" onMouseOver={() => selectItem(item)}>
+    <Media
+      className="list-item"
+      onMouseOver={() => selectItem(item)}
+      onClick={() => selectPlaylist(item)}
+    >
       <img
         width={50}
         height={50}

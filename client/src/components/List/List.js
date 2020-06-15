@@ -12,7 +12,7 @@ function List(props) {
           ? props.data.map((item, index) => {
               return (
                 <Fade big key={index}>
-                  <ListItem item={item} selectItem={props.selectItem} />
+                  <ListItem item={item} selectItem={props.selectItem} selectPlaylist={props.selectPlaylist} />
                 </Fade>
               );
             })
