@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router-dom";
 import TrackItem from "../TrackItem/TrackItem";
 import "./Tracks.scss";
-import Fade from "react-reveal/Fade";
-import { Spinner } from "react-bootstrap";
+import { Spinner, Table } from "react-bootstrap";
 
 function Tracks(props) {
   const { match } = props;
@@ -42,11 +41,21 @@ function Tracks(props) {
         {loading ? (
           <Spinner animation="grow" className="loader" />
         ) : (
-          playlistTracks.map((track) => (
-            <Fade big key={track.track.id}>
-              <TrackItem item={track} />
-            </Fade>
-          ))
+          <Table responsive>
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Track</th>
+                <th>Duration</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {playlistTracks.map((track) => (
+                <TrackItem item={track} key={track.track.id} />
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
     </div>

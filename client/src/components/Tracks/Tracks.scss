@@ -2,29 +2,9 @@
   height: inherit;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
+  overflow-y: hidden;
   padding: 10px 10px;
   width: 100%;
-
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: white;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: lightgrey;
-    border-radius: 20px;
-    border: 1px solid white;
-
-    &:hover {
-      background-color: grey;
-      border-radius: 20px;
-      border: 1px solid white;
-    }
-  }
 
   .loader {
     position: absolute;
@@ -33,5 +13,57 @@
     bottom: 0;
     left: 0;
     right: 0;
+  }
+
+  .table-responsive {
+    table {
+      thead {
+        tr > th:not(:nth-child(2)) {
+          text-align: center;
+        }
+
+        tr > th{
+          border: none;
+        }
+      }
+
+      tbody {
+        tr > td:not(:nth-child(2)) {
+          text-align: center;
+        }
+
+        tr:nth-child(1){
+          td{
+            border-bottom: none;
+          }
+        }
+
+        tr:not(:nth-child(1)){
+          td {
+            border: none;
+          }
+        }
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: white;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: lightgrey;
+      border-radius: 20px;
+      border: 1px solid white;
+
+      &:hover {
+        background-color: grey;
+        border-radius: 20px;
+        border: 1px solid white;
+      }
+    }
   }
 }
