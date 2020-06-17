@@ -20,9 +20,9 @@ import (
 )
 
 type config struct {
-	ClientId     string `json:"clientId"`
+	ClientID     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
-	RedirectUri  string `json:"redirectUri"`
+	RedirectURI  string `json:"redirectUri"`
 }
 
 type data struct {
@@ -42,7 +42,7 @@ type createPlaylist struct {
 }
 
 type createPlaylistResponse struct {
-	PlaylistId string `json:"id"`
+	PlaylistID string `json:"id"`
 }
 
 type mergePlaylist struct {
@@ -86,9 +86,36 @@ func main() {
 		r1.GET("/tracks/playlists/:id", playlistTracksHandler)
 		r1.POST("/playlists", createPlaylistHandler)
 		r1.POST("/playlists/merge", mergePlaylistHandler)
+		r1.DELETE("/playlists/:id", deletePlaylistHandler)
 	}
 
 	router.Run()
+}
+
+func deletePlaylistHandler(c *gin.Context) {
+	var data data
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+	playlistID := c.Param("id")
+	selectedPlaylist, err := client.GetPlaylist(sp.ID(playlistID))
+	if err != nil {
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
+		return
+	}
+	playlistOwner := selectedPlaylist.Owner
+
+	err = client.UnfollowPlaylist(sp.ID(playlistOwner.ID), sp.ID(playlistID))
+	if err != nil {
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
+	}
+	c.JSON(http.StatusOK, data)
 }
 
 func authorizeHandler(c *gin.Context) {
@@ -129,14 +156,15 @@ func authorizeHandler(c *gin.Context) {
 
 func spotifyHandler(c *gin.Context) {
 	a := sp.NewAuthenticator(
-		appConfig.RedirectUri,
+		appConfig.RedirectURI,
 		sp.ScopeUserLibraryRead,
+		sp.ScopeUserLibraryModify,
 		sp.ScopeUserReadEmail,
 		sp.ScopePlaylistReadPrivate,
 		sp.ScopePlaylistModifyPrivate,
 		sp.ScopePlaylistModifyPublic,
 		sp.ScopePlaylistReadCollaborative)
-	a.SetAuthInfo(appConfig.ClientId, appConfig.ClientSecret)
+	a.SetAuthInfo(appConfig.ClientID, appConfig.ClientSecret)
 	sClient.Authenticator = a
 	c.Redirect(http.StatusFound, a.AuthURLWithDialog("spotify-login"))
 }
@@ -177,12 +205,12 @@ func playlistHandler(c *gin.Context) {
 
 func playlistTracksHandler(c *gin.Context) {
 	var data data
-	playlistId := c.Param("id")
+	playlistID := c.Param("id")
 
 	bearerToken := c.Request.Header.Get("Authorization")
 	token := strings.Split(bearerToken, " ")
 
-	playlistTracks, err := getPlaylistTracks(playlistId, token)
+	playlistTracks, err := getPlaylistTracks(playlistID, token)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(sp.Error)
@@ -219,12 +247,8 @@ func createPlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	resp.PlaylistId = createdPlaylist.ID.String()
+	resp.PlaylistID = createdPlaylist.ID.String()
 	c.JSON(http.StatusCreated, resp)
-}
-
-type result struct {
-	trackId sp.ID
 }
 
 func mergePlaylistHandler(c *gin.Context) {
@@ -303,7 +327,7 @@ func mergePlaylistHandler(c *gin.Context) {
 		}
 	}
 
-	resp.PlaylistId = mergedPlaylist.ID.String()
+	resp.PlaylistID = mergedPlaylist.ID.String()
 	c.JSON(http.StatusCreated, resp)
 }
 
@@ -314,12 +338,12 @@ func getMin(a, b int) int {
 	return b
 }
 
-func getPlaylistTracks(playlistId string, token []string) ([]sp.PlaylistTrack, error) {
+func getPlaylistTracks(playlistID string, token []string) ([]sp.PlaylistTrack, error) {
 	var ret []sp.PlaylistTrack
 
 	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
 
-	tracks, err := client.GetPlaylistTracks(sp.ID(playlistId))
+	tracks, err := client.GetPlaylistTracks(sp.ID(playlistID))
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +352,7 @@ func getPlaylistTracks(playlistId string, token []string) ([]sp.PlaylistTrack, e
 		for i := 1; i < int(math.Ceil(float64(tracks.Total)/100)); i++ {
 			offset := i * 100
 			limit := 100
-			moreTracks, err := client.GetPlaylistTracksOpt(sp.ID(playlistId), &sp.Options{Offset: &offset, Limit: &limit}, "")
+			moreTracks, err := client.GetPlaylistTracksOpt(sp.ID(playlistID), &sp.Options{Offset: &offset, Limit: &limit}, "")
 			if err != nil {
 				return nil, err
 			}
