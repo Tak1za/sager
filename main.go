@@ -112,7 +112,7 @@ func deletePlaylistTracksHandler(c *gin.Context) {
 		return
 	}
 
-	spIds := make([]sp.ID, len(req.Ids))
+	var spIds []sp.ID
 	for _, j := range req.Ids {
 		spIds = append(spIds, sp.ID(j))
 	}
