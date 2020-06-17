@@ -52,6 +52,10 @@ type mergePlaylist struct {
 	Public bool   `json:"public"`
 }
 
+type ids struct {
+	Ids []string `json:"id"`
+}
+
 var (
 	appConfig config
 	sClient   spotifyClient
@@ -87,9 +91,42 @@ func main() {
 		r1.POST("/playlists", createPlaylistHandler)
 		r1.POST("/playlists/merge", mergePlaylistHandler)
 		r1.DELETE("/playlists/:id", deletePlaylistHandler)
+		r1.DELETE("/tracks/playlists/:id", deletePlaylistTracksHandler)
 	}
 
 	router.Run()
+}
+
+func deletePlaylistTracksHandler(c *gin.Context) {
+	var data data
+	var req ids
+	bearerToken := c.Request.Header.Get("Authorization")
+	token := strings.Split(bearerToken, " ")
+	client := sClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+	playlistID := c.Param("id")
+	if err := c.BindJSON(&req); err != nil {
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
+		return
+	}
+
+	spIds := make([]sp.ID, len(req.Ids))
+	for _, j := range req.Ids {
+		spIds = append(spIds, sp.ID(j))
+	}
+
+	_, err := client.RemoveTracksFromPlaylist(sp.ID(playlistID), spIds...)
+	if err != nil {
+		log.Println(err)
+		internalErr := err.(sp.Error)
+		data.Error = internalErr.Message
+		c.JSON(internalErr.Status, data)
+		return
+	}
+
+	c.JSON(http.StatusOK, data)
 }
 
 func deletePlaylistHandler(c *gin.Context) {
