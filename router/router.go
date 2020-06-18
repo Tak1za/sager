@@ -4,6 +4,7 @@ import (
 	"time"
 
 	apiControllerV1 "github.com/Tak1za/sager/controller/api/v1"
+	"github.com/Tak1za/sager/middlewares"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -22,10 +23,11 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	// r.GET("/authorize", apiControllerV1.AuthorizeHandler)
+	r.GET("/login", apiControllerV1.LoginHandler)
 
 	v1 := r.Group("/spotify")
+	v1.Use(middlewares.AuthenticationRequired())
 	{
-		v1.GET("/login", apiControllerV1.LoginHandler)
 		v1.GET("/profile", apiControllerV1.ProfileHandler)
 		v1.GET("/playlists", apiControllerV1.PlaylistHandler)
 		v1.GET("/tracks/playlists/:id", apiControllerV1.PlaylistTracksHandler)

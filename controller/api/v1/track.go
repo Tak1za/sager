@@ -3,23 +3,19 @@ package v1
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Tak1za/sager/helper"
 	"github.com/Tak1za/sager/models"
 	"github.com/Tak1za/sager/service"
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
-	"golang.org/x/oauth2"
 )
 
 //DeletePlaylistTracksHandler deals with removing tracks from a playlist
 func DeletePlaylistTracksHandler(c *gin.Context) {
 	var data models.Data
 	var req models.Ids
-	bearerToken := c.Request.Header.Get("Authorization")
-	token := strings.Split(bearerToken, " ")
-	client := helper.BaseClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
+
 	playlistID := c.Param("id")
 	if err := c.BindJSON(&req); err != nil {
 		log.Println(err)
@@ -34,7 +30,7 @@ func DeletePlaylistTracksHandler(c *gin.Context) {
 		spIds = append(spIds, spotify.ID(j))
 	}
 
-	_, err := client.RemoveTracksFromPlaylist(spotify.ID(playlistID), spIds...)
+	_, err := helper.Client.RemoveTracksFromPlaylist(spotify.ID(playlistID), spIds...)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -51,10 +47,7 @@ func PlaylistTracksHandler(c *gin.Context) {
 	var data models.Data
 	playlistID := c.Param("id")
 
-	bearerToken := c.Request.Header.Get("Authorization")
-	token := strings.Split(bearerToken, " ")
-
-	playlistTracks, err := service.GetPlaylistTracks(playlistID, token)
+	playlistTracks, err := service.GetPlaylistTracks(playlistID)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)

@@ -5,16 +5,13 @@ import (
 
 	"github.com/Tak1za/sager/helper"
 	"github.com/zmb3/spotify"
-	"golang.org/x/oauth2"
 )
 
 //GetPlaylistTracks service gets the tracks from a playlist
-func GetPlaylistTracks(playlistID string, token []string) ([]spotify.PlaylistTrack, error) {
+func GetPlaylistTracks(playlistID string) ([]spotify.PlaylistTrack, error) {
 	var ret []spotify.PlaylistTrack
 
-	client := helper.BaseClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
-
-	tracks, err := client.GetPlaylistTracks(spotify.ID(playlistID))
+	tracks, err := helper.Client.GetPlaylistTracks(spotify.ID(playlistID))
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +20,7 @@ func GetPlaylistTracks(playlistID string, token []string) ([]spotify.PlaylistTra
 		for i := 1; i < int(math.Ceil(float64(tracks.Total)/100)); i++ {
 			offset := i * 100
 			limit := 100
-			moreTracks, err := client.GetPlaylistTracksOpt(spotify.ID(playlistID), &spotify.Options{Offset: &offset, Limit: &limit}, "")
+			moreTracks, err := helper.Client.GetPlaylistTracksOpt(spotify.ID(playlistID), &spotify.Options{Offset: &offset, Limit: &limit}, "")
 			if err != nil {
 				return nil, err
 			}

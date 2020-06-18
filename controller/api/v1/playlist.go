@@ -4,24 +4,19 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"strings"
 
 	"github.com/Tak1za/sager/helper"
 	"github.com/Tak1za/sager/models"
 	"github.com/Tak1za/sager/service"
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
-	"golang.org/x/oauth2"
 )
 
 //DeletePlaylistHandler deals with removing/unfollowing a playlist
 func DeletePlaylistHandler(c *gin.Context) {
 	var data models.Data
-	bearerToken := c.Request.Header.Get("Authorization")
-	token := strings.Split(bearerToken, " ")
-	client := helper.BaseClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
 	playlistID := c.Param("id")
-	selectedPlaylist, err := client.GetPlaylist(spotify.ID(playlistID))
+	selectedPlaylist, err := helper.Client.GetPlaylist(spotify.ID(playlistID))
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -31,7 +26,7 @@ func DeletePlaylistHandler(c *gin.Context) {
 	}
 	playlistOwner := selectedPlaylist.Owner
 
-	err = client.UnfollowPlaylist(spotify.ID(playlistOwner.ID), spotify.ID(playlistID))
+	err = helper.Client.UnfollowPlaylist(spotify.ID(playlistOwner.ID), spotify.ID(playlistID))
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -44,10 +39,7 @@ func DeletePlaylistHandler(c *gin.Context) {
 //PlaylistHandler deals with getting the playlists of the logged in user
 func PlaylistHandler(c *gin.Context) {
 	var data models.Data
-	bearerToken := c.Request.Header.Get("Authorization")
-	token := strings.Split(bearerToken, " ")
-	client := helper.BaseClient.Authenticator.NewClient(&oauth2.Token{AccessToken: token[1], TokenType: token[0]})
-	content, err := client.CurrentUsersPlaylists()
+	content, err := helper.Client.CurrentUsersPlaylists()
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -72,7 +64,7 @@ func CreatePlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	createdPlaylist, err := helper.BaseClient.Client.CreatePlaylistForUser(helper.BaseClient.User.ID, req.Name, "", req.Public)
+	createdPlaylist, err := helper.Client.CreatePlaylistForUser(helper.BaseClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -91,18 +83,7 @@ func MergePlaylistHandler(c *gin.Context) {
 	var req models.MergePlaylist
 	var data models.Data
 
-	bearerToken := c.Request.Header.Get("Authorization")
-	token := strings.Split(bearerToken, " ")
-
-	if err := c.BindJSON(&req); err != nil {
-		log.Println(err)
-		internalErr := err.(spotify.Error)
-		data.Error = internalErr.Message
-		c.JSON(internalErr.Status, data)
-		return
-	}
-
-	mergedPlaylist, err := helper.BaseClient.Client.CreatePlaylistForUser(helper.BaseClient.User.ID, req.Name, "", req.Public)
+	mergedPlaylist, err := helper.Client.CreatePlaylistForUser(helper.BaseClient.User.ID, req.Name, "", req.Public)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -111,7 +92,7 @@ func MergePlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	data1, err := service.GetPlaylistTracks(req.P1, token)
+	data1, err := service.GetPlaylistTracks(req.P1)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -120,7 +101,7 @@ func MergePlaylistHandler(c *gin.Context) {
 		return
 	}
 
-	data2, err := service.GetPlaylistTracks(req.P2, token)
+	data2, err := service.GetPlaylistTracks(req.P2)
 	if err != nil {
 		log.Println(err)
 		internalErr := err.(spotify.Error)
@@ -142,7 +123,7 @@ func MergePlaylistHandler(c *gin.Context) {
 		start := i * 100
 		end := len(allTracks) % 100
 		if i < len(allTracks)/100 {
-			_, err = helper.BaseClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+100]...)
+			_, err = helper.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+100]...)
 			if err != nil {
 				log.Println(err)
 				internalErr := err.(spotify.Error)
@@ -151,7 +132,7 @@ func MergePlaylistHandler(c *gin.Context) {
 				return
 			}
 		} else {
-			_, err = helper.BaseClient.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+end]...)
+			_, err = helper.Client.AddTracksToPlaylist(mergedPlaylist.ID, allTracks[start:start+end]...)
 			if err != nil {
 				log.Println(err)
 				internalErr := err.(spotify.Error)
